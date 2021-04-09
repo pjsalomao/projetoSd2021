@@ -1,5 +1,7 @@
 package com.projetoSd.portalCliente;
 
+
+//entidade que emite a resposta do servidor
 public class OutputMessage {
 
 	private String sender;

@@ -14,9 +14,10 @@ public class ResponseController {
 	
 	//controla os eventos do app
 
-
+	
 	private BaseClientes baseClientes = new BaseClientes();
 	
+	//instancia a tabela hash para salvar os dados inseridos pelo cliente
 	Map<String, Tarefa> tarefas = new HashMap<String, Tarefa>();
 
 	@MessageMapping("/chat")
