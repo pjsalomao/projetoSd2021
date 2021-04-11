@@ -1,8 +1,10 @@
 package com.projetoSd.portalCliente;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -11,13 +13,12 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class ResponseController {
-	
-	//controla os eventos do app
 
-	
+	// controla os eventos do app
+
 	private BaseClientes baseClientes = new BaseClientes();
-	
-	//instancia a tabela hash para salvar os dados inseridos pelo cliente
+
+	// instancia a tabela hash para salvar os dados inseridos pelo cliente
 	Map<String, Tarefa> tarefas = new HashMap<String, Tarefa>();
 
 	@MessageMapping("/chat")
@@ -48,12 +49,13 @@ public class ResponseController {
 	public OutputMessage insereTarefa(Tarefa tarefa) throws Exception {
 
 		String time = new SimpleDateFormat("HH:mm").format(new Date());
-		
+
 		tarefas.put(tarefa.getClienteId() + tarefa.getTitulo(), tarefa);
 
-		return new OutputMessage(tarefa.getClienteId(), "Inserido " + tarefa.getTitulo() + "-" + tarefa.getDescricao(), time);
+		return new OutputMessage(tarefa.getClienteId(), "Inserido " + tarefa.getTitulo() + "-" + tarefa.getDescricao(),
+				time);
 	}
-	
+
 	@MessageMapping("/modifica")
 	@SendTo("/topic/messages")
 	public OutputMessage modificaTarefa(Tarefa tarefa) throws Exception {
@@ -62,29 +64,40 @@ public class ResponseController {
 
 		tarefas.replace(tarefa.getClienteId() + tarefa.getTitulo(), tarefa);
 
-		return new OutputMessage(tarefa.getClienteId(), "Modificado " + tarefa.getTitulo() + "-" + tarefa.getDescricao(), time);
+		return new OutputMessage(tarefa.getClienteId(),
+				"Modificado " + tarefa.getTitulo() + "-" + tarefa.getDescricao(), time);
 	}
-	
+
 	@MessageMapping("/lista")
 	@SendTo("/topic/messages")
 	public OutputMessage listaTarefa(Tarefa tarefa) throws Exception {
 
 		String time = new SimpleDateFormat("HH:mm").format(new Date());
 
-		tarefas.replace(tarefa.getClienteId() + tarefa.getTitulo(), tarefa);
+		String lista = "";
 
-		return new OutputMessage(tarefa.getClienteId(), "Listado " + tarefa.getTitulo() + "-" + tarefa.getDescricao(), time);
+		for (Map.Entry<String, Tarefa> entrada : tarefas.entrySet()) {
+			if (entrada.getValue().getClienteId().equals(tarefa.getClienteId())) {
+				lista += " Codigo: " + entrada.getKey() + "; Titulo: " + entrada.getValue().getTitulo() + " Descrição: "
+						+ entrada.getValue().getDescricao() + " ### ";
+			}
+
+		}
+
+		return new OutputMessage(tarefa.getClienteId(), lista,
+				time);
 	}
-	
+
 	@MessageMapping("/apaga")
 	@SendTo("/topic/messages")
 	public OutputMessage apagarTarefa(Tarefa tarefa) throws Exception {
 
 		String time = new SimpleDateFormat("HH:mm").format(new Date());
-		
+
 		tarefas.remove(tarefa.getClienteId() + tarefa.getTitulo());
 
-		return new OutputMessage(tarefa.getClienteId(), "Excluido " + tarefa.getTitulo() + "-" + tarefa.getDescricao(), time);
+		return new OutputMessage(tarefa.getClienteId(), "Excluido " + tarefa.getTitulo() + "-" + tarefa.getDescricao(),
+				time);
 	}
 
 }
